@@ -347,7 +347,7 @@ int aliasLDA::sampling(int m)
 					new_topic = q[w].sample(utils::unif01(), utils::unif01());
 				}
 
-				_mm_prefetch((const char *)&(q[w].w[topic]), _MM_HINT_T1);
+				//_mm_prefetch((const char *)&(q[w].w[topic]), _MM_HINT_T1);
 
 				if (topic != new_topic)
 				{
