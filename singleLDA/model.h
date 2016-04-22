@@ -134,6 +134,7 @@ protected:
 	int save_model_params(std::string filename) const;	// model_name.params: containing other parameters of the model (alpha, beta, M, V, K)
 	int save_model_topWords(std::string filename) const;// model_name.twords: Top words in each top
 	int save_model_phi(std::string filename) const;		// model_name.phi: topic-word distributions
+	int save_model_theta(std::string filename) const;		// model_name.theta: doc-topic
 
 	/****** Some functions for debugging ******/
 	int sanity() const;

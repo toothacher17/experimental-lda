@@ -27,7 +27,7 @@ model::model()
 	rev_mapper = NULL;
 
 	n_iters = 1000;
-	n_save = 200;
+	n_save = 20;
 	n_topWords = 0;
 
 	test_n_iters = 10;
@@ -49,7 +49,7 @@ model::model()
 model::~model()
 {
 	if (trngdata) delete trngdata;
-	if (testdata) delete trngdata;
+	if (testdata) delete testdata;
 	
 	
 	if (z)
@@ -715,20 +715,28 @@ int model::save_model(int iter) const
 	std::cout << "others done" << std::endl;
     if (n_topWords > 0)
 	{
-		//if (save_model_twords(mdir + model_name + ".twords")) 
-		//ff{
-		//	return 1;
-		//}
-		//std::cout << "twords done" << std::endl;
+		if (save_model_topWords(mdir + model_name + ".twords")) 
+		{
+			return 1;
+		}
+		std::cout << "twords done" << std::endl;
     }
-	//if (model_status == MODEL_SELF_TEST)
-	//{
-	//	if (save_model_phi(mdir + model_name + ".phi"))
-	//	{
-	//		return 1;
-	//	}
-	//	std::cout << "phi done" << std::endl;
-	//}
+	if (n_topWords > 0)
+	{
+		if (save_model_phi(mdir + model_name + ".phi"))
+		{
+			return 1;
+		}
+		std::cout << "phi done" << std::endl;
+	}
+	if (n_topWords > 0)
+	{
+		if (save_model_theta(mdir + model_name + ".theta"))
+		{
+			return 1;
+		}
+		std::cout << "theta done" << std::endl;
+	}
     return 0;
 }
 
@@ -816,7 +824,11 @@ int model::save_model_topWords(std::string filename) const
 		}
     
         // quick sort to sort word-topic probability
-		std::sort(words_probs.begin(), words_probs.end());
+		//std::sort(words_probs.begin(), words_probs.end());
+        std::sort(words_probs.begin(), words_probs.end(),
+        [](const std::pair<int, int> &left, const std::pair<int, int> &right) {
+          return left.second > right.second;
+        });
 	
 		fout << "Topic " << k << "th:" << std::endl;
 		for (int i = 0; i < _n_topWords; i++)
@@ -856,6 +868,34 @@ int model::save_model_phi(std::string filename) const
 
 	return 0;
 }
+
+// save the model para theta
+int model::save_model_theta(std::string filename) const
+{
+  std::ofstream fout(filename);
+  if (!fout){
+    std::cout << "Error: Cannot open file to save: " << filename << std::endl;
+    return 1;
+  }
+  fout << M << std::endl;
+  // loop every doc
+  for (int m = 0; m < M; ++m ) {
+    for (const auto &k : n_mks[m]) {
+      nd_m[k.first] = k.second;
+    }
+    float fenmu = 0.0;
+    for (int k = 0; k < K; ++k) {
+      fenmu += nd_m[k] + alpha;
+    }
+    for (int k = 0; k < K; ++k) {
+      fout << (nd_m[k] + alpha) / fenmu << " ";
+    }
+    fout << std::endl;
+  }
+  fout.close();
+  return 0;
+}
+
 
 int model::sanity() const
 {

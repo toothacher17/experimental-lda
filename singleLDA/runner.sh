@@ -1,9 +1,9 @@
 #!/bin/bash
 
-DATASETS="20news acm enron gpol hep"
-METHODS="aliasLDA FTreeLDA sparseLDA lightLDA"
-NUM_ITER="1000"
-NUM_TOPICS="64"
+DATASETS="nips"
+METHODS="FTreeLDA"
+NUM_ITER="20"
+NUM_TOPICS="50"
 
 for DATASET in $DATASETS
 do
@@ -15,15 +15,14 @@ do
 	mkdir -p $DIR_NAME
 
 	#save details about experiments in an about file
-	`echo 'Running LDA inference using' $METHOD | tee -a $DIR_NAME/log.txt`
-	`echo 'For dataset' $dataset | tee -a $DIR_NAME/log.txt`
-	`echo 'For number of iterations' $NUM_ITER | tee -a $DIR_NAME/log.txt`
-	`echo 'For number of topics' $NUM_TOPICS | tee -a $DIR_NAME/log.txt`
-	echo 'with results being stored in' $DIR_NAME
-	`echo 'Using single sampling thread' | tee -a $DIR_NAME/log.txt`
+	echo 'Running LDA inference using' $METHOD
+	echo 'For dataset' $dataset
+	echo 'For number of iterations' $NUM_ITER
+	echo 'For number of topics' $NUM_TOPICS
+	echo 'Using single sampling thread'
 
 	#run
-	./LDA --method "$METHOD" --testing-mode net --num-topics $NUM_TOPICS --num-iterations $NUM_ITER --output-model $DIR_NAME --num-top-words 15 --training-file ../data/"$DATASET".train --testing-file "$DATASET".test | tee -a $DIR_NAME/log.txt
+	./LDA --method "$METHOD" --testing-mode set --num-topics $NUM_TOPICS --num-iterations $NUM_ITER --output-model $DIR_NAME --num-top-words 15 --training-file ../data/"$DATASET".train --testing-file "$DATASET".test | tee -a $DIR_NAME/log.txt
 done
 done
 
